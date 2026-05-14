@@ -27,7 +27,7 @@ export default function Upload() {
 
   useEffect(() => {
 
-    const historicoSalvo = localStorage.getItem("clips")
+    const historicoSalvo = localStorage.getItem("clips-demo")
 
     if (historicoSalvo) {
       setHistorico(JSON.parse(historicoSalvo))
@@ -37,7 +37,7 @@ export default function Upload() {
 
   useEffect(() => {
 
-    localStorage.setItem("clips", JSON.stringify(historico))
+    localStorage.setItem("clips-demo", JSON.stringify(historico))
 
   }, [historico])
 
@@ -47,54 +47,49 @@ export default function Upload() {
 
     setCarregando(true)
 
-    setProgresso(10)
+    setProgresso(0)
 
     const intervalo = setInterval(() => {
 
       setProgresso((valorAtual) => {
 
-        if (valorAtual >= 90) return 90
+        if (valorAtual >= 100) {
+          clearInterval(intervalo)
+          return 100
+        }
 
         return valorAtual + 10
       })
 
-    }, 500)
-
-    const formData = new FormData()
-
-    formData.append("video", arquivo)
-
-    const resposta = await fetch("/api/upload", {
-      method: "POST",
-      body: formData
-    })
-
-    const dados = await resposta.json()
-
-    clearInterval(intervalo)
-
-    setProgresso(100)
-
-    setClipGerado(dados.clip)
-
-    setHistorico((anterior) => [
-      {
-        clip: dados.clip,
-        thumbnail: dados.thumbnail
-      },
-      ...anterior
-    ])
-
-    setMomentos([
-      "O maior erro das pessoas é desistir cedo",
-      "Se você postar consistentemente por 30 dias",
-      "A maioria falha por falta de consistência"
-    ])
+    }, 400)
 
     setTimeout(() => {
+
+      const clipFake = "demo-clip.mp4"
+
+      const thumbnailFake = "thumb-1.jpg"
+
+      setClipGerado(clipFake)
+
+      setHistorico((anterior) => [
+        {
+          clip: clipFake,
+          thumbnail: thumbnailFake
+        },
+        ...anterior
+      ])
+
+      setMomentos([
+        "A consistência vence o talento.",
+        "Quem domina atenção domina vendas.",
+        "Conteúdo curto gera mais retenção."
+      ])
+
       setCarregando(false)
-      setProgresso(0)
-    }, 800)
+
+      clearInterval(intervalo)
+
+    }, 4500)
 
   }
 
@@ -107,63 +102,85 @@ export default function Upload() {
     if (arquivoSelecionado) {
       setArquivo(arquivoSelecionado)
     }
+
   }
 
   function abrirModal(clip: string) {
+
     setClipSelecionado(clip)
+
     setModalAberto(true)
+
   }
 
   return (
+
     <section className="mx-auto mt-20 max-w-6xl px-6 pb-32">
 
       {/* UPLOAD */}
 
-      <div className="rounded-2xl border border-gray-800 bg-gray-900 p-8">
+      <div className="rounded-3xl border border-gray-800 bg-gray-900 p-8 shadow-2xl">
 
         <h2 className="text-3xl font-bold text-white">
           Envie seu vídeo
         </h2>
 
         <p className="mt-3 text-gray-400">
-          Gere cortes automáticos usando IA.
+          Nossa IA irá detectar automaticamente os melhores momentos.
         </p>
 
         <input
           type="file"
           accept="video/*"
           onChange={selecionarArquivo}
-          className="mt-6 block w-full text-sm text-gray-400"
+          className="mt-8 block w-full rounded-xl border border-gray-800 bg-black p-4 text-sm text-gray-400"
         />
 
         {arquivo && (
 
-          <div className="mt-6 rounded-xl border border-gray-800 bg-black p-5">
+          <div className="mt-8 rounded-2xl border border-gray-800 bg-black p-6">
 
-            <p className="text-white">Arquivo selecionado:</p>
+            <p className="text-sm text-gray-500">
+              Arquivo selecionado
+            </p>
 
-            <p className="mt-2 text-gray-400">{arquivo.name}</p>
+            <p className="mt-2 text-lg font-semibold text-white">
+              {arquivo.name}
+            </p>
 
             <button
               onClick={enviarArquivo}
               disabled={carregando}
-              className="mt-6 rounded-xl bg-green-500 px-6 py-3 font-semibold text-black"
+              className="mt-8 w-full rounded-2xl bg-green-500 px-6 py-4 font-bold text-black transition hover:scale-[1.01]"
             >
-              {carregando ? "Processando..." : "Gerar Clip"}
+              {carregando
+                ? "Processando IA..."
+                : "Gerar Clips Automáticos"}
             </button>
 
             {carregando && (
-              <div className="mt-6">
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-800">
+
+              <div className="mt-8">
+
+                <div className="h-4 w-full overflow-hidden rounded-full bg-gray-800">
+
                   <div
                     className="h-full rounded-full bg-green-500 transition-all duration-500"
                     style={{ width: `${progresso}%` }}
                   />
+
                 </div>
-                <p className="mt-3 text-sm text-gray-400">
-                  Processando vídeo...
-                </p>
+
+                <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+
+                  <p>Processando vídeo com IA...</p>
+
+                  <p>{progresso}%</p>
+
+                </div>
+
               </div>
+
             )}
 
           </div>
@@ -172,25 +189,25 @@ export default function Upload() {
 
       </div>
 
-      {/* RESULTADO PRINCIPAL */}
+      {/* RESULTADO */}
 
       {clipGerado && (
 
-        <div className="mt-10 rounded-2xl border border-green-500/20 bg-green-500/5 p-8">
+        <div className="mt-12 rounded-3xl border border-green-500/20 bg-green-500/5 p-8">
 
-          <div className="flex flex-col gap-8 lg:flex-row">
+          <div className="grid gap-10 lg:grid-cols-2">
 
-            <div className="flex-1">
+            <div>
 
               <video
                 controls
                 className="w-full rounded-2xl"
-                src={`/clips/${clipGerado}`}
+                src={`/demo/${clipGerado}`}
               />
 
             </div>
 
-            <div className="w-full lg:w-96">
+            <div>
 
               <h3 className="text-2xl font-bold text-white">
                 Momentos Detectados
@@ -199,12 +216,18 @@ export default function Upload() {
               <div className="mt-6 space-y-4">
 
                 {momentos.map((momento, index) => (
+
                   <div
                     key={index}
-                    className="rounded-xl border border-gray-800 bg-black p-4"
+                    className="rounded-2xl border border-gray-800 bg-black p-5"
                   >
-                    <p className="text-gray-300">{momento}</p>
+
+                    <p className="text-gray-300">
+                      {momento}
+                    </p>
+
                   </div>
+
                 ))}
 
               </div>
@@ -221,11 +244,19 @@ export default function Upload() {
 
       {historico.length > 0 && (
 
-        <div className="mt-16">
+        <div className="mt-20">
 
-          <h3 className="text-3xl font-bold text-white">
-            Clips Recentes
-          </h3>
+          <div className="flex items-center justify-between">
+
+            <h3 className="text-3xl font-bold text-white">
+              Clips Gerados
+            </h3>
+
+            <span className="rounded-full bg-green-500/10 px-4 py-2 text-sm text-green-400">
+              IA ativa
+            </span>
+
+          </div>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
 
@@ -233,22 +264,22 @@ export default function Upload() {
 
               <div
                 key={index}
-                className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900"
+                className="overflow-hidden rounded-3xl border border-gray-800 bg-gray-900"
               >
 
                 <img
-                  src={`/thumbnails/${item.thumbnail}`}
+                  src={`/demo-thumbnails/${item.thumbnail}`}
                   className="aspect-video w-full object-cover"
                 />
 
-                <div className="p-5">
+                <div className="p-6">
 
-                  <h4 className="text-lg font-semibold text-white">
-                    Clip gerado automaticamente
+                  <h4 className="text-lg font-bold text-white">
+                    Clip Viral Detectado
                   </h4>
 
-                  <p className="mt-2 text-sm text-gray-400 truncate">
-                    {item.clip}
+                  <p className="mt-2 text-sm text-gray-400">
+                    Gerado automaticamente pela IA
                   </p>
 
                   <div className="mt-6 flex gap-3">
@@ -261,9 +292,9 @@ export default function Upload() {
                     </button>
 
                     <a
-                      href={`/clips/${item.clip}`}
+                      href={`/demo/${item.clip}`}
                       download
-                      className="flex-1 rounded-xl bg-green-500 px-4 py-3 text-center text-sm font-semibold text-black"
+                      className="flex-1 rounded-xl bg-green-500 px-4 py-3 text-center text-sm font-bold text-black"
                     >
                       Download
                     </a>
@@ -288,11 +319,11 @@ export default function Upload() {
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6">
 
-          <div className="w-full max-w-4xl rounded-2xl bg-black p-6">
+          <div className="w-full max-w-5xl rounded-3xl bg-black p-6">
 
             <div className="flex items-center justify-between">
 
-              <h3 className="text-white font-bold">
+              <h3 className="text-xl font-bold text-white">
                 Preview do Clip
               </h3>
 
@@ -308,8 +339,8 @@ export default function Upload() {
             <video
               controls
               autoPlay
-              className="mt-6 w-full rounded-xl"
-              src={`/clips/${clipSelecionado}`}
+              className="mt-6 w-full rounded-2xl"
+              src={`/demo/${clipSelecionado}`}
             />
 
           </div>
@@ -319,5 +350,6 @@ export default function Upload() {
       )}
 
     </section>
+
   )
 }
