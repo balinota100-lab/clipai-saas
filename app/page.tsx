@@ -39,7 +39,7 @@ export default function Home() {
 
       </header>
 
-      {/* HERO */}
+      {/* HERO DO PORTFÓLIO */}
 
       <section className="mx-auto max-w-6xl px-6 pt-16">
 
@@ -82,7 +82,7 @@ export default function Home() {
 
       </section>
 
-      {/* SOBRE */}
+      {/* SOBRE O PROJETO */}
 
       <section id="sobre" className="mx-auto mt-20 max-w-6xl px-6">
 
@@ -109,19 +109,9 @@ export default function Home() {
 
       </section>
 
-      {/* TESTE DEPLOY */}
+      {/* DASHBOARD */}
 
-      <div className="mt-20 text-center">
-
-        <h2 className="text-4xl font-bold text-green-400">
-          ClipAI Online 🚀
-        </h2>
-
-        <p className="mt-4 text-gray-400">
-          Deploy funcionando corretamente.
-        </p>
-
-      </div>
+      <Upload />
 
       {/* FOOTER */}
 
